@@ -1,0 +1,164 @@
+CREATE TABLE staff( 
+
+employeeNO NUMBER(3)not null,  
+Name       VARCHAR(25) ,  
+PhoneNO    NUMBER(10),  
+
+constraint employeeNO primary key (employeeNO) );
+
+INSERT INTO staff VALUES (501,'Ahmad',0569241535);
+INSERT INTO staff VALUES (502,'Khaled',0505644261);
+INSERT INTO staff VALUES (503,'Naif',0503619779);
+INSERT INTO staff VALUES (504,'Ali',0551616601);
+INSERT INTO staff VALUES (505,'Salman',0534811607); 
+
+select * from staff
+--------------------------------------------------------------------------------
+CREATE TABLE passengers (  
+passengersID NUMBER(4) not null ,  
+Name         VARCHAR(25) not null ,  
+Gender       VARCHAR(20), 
+age          NUMBER(2) ,  
+
+constraint passengersID primary key (passengersID)
+);
+
+INSERT INTO passengers  VALUES (5430,'Enas','female',21);
+INSERT INTO passengers VALUES (5431,'Yara','female',23);
+INSERT INTO passengers VALUES (5432,'Amjad','female',25);
+INSERT INTO passengers  VALUES (5433,'Haneen','female',24);
+INSERT INTO passengers  VALUES (5434,'Amal','female',22);
+
+select * from passengers
+
+--------------------------------------------------------------------------------
+CREATE TABLE Train (  
+TrainNO           VARCHAR2(3) not null,  
+First_station     VARCHAR2(20) not null ,  
+Last_station      VARCHAR2(20) not null , 
+Duration          VARCHAR2(20),  
+
+constraint TrainNO primary key (TrainNO)
+);
+
+INSERT INTO Train  VALUES ('T15','Jeddah','Makkah','1 hour');
+INSERT INTO Train  VALUES ('T16','Riyadh','Jeddah','1 hour');
+INSERT INTO Train  VALUES ('T17','Riyadh','jeddah','1 hour');
+INSERT INTO Train  VALUES ('T18','Jeddah','Riyadh','1 hour');
+INSERT INTO Train  VALUES ('T19','Jeddah','Makkah','1 hour');
+
+select * from train 
+
+--------------------------------------------------------------------------------
+CREATE TABLE Ticket11(  
+TicketNo        Number (4) not null,  
+passengersID    NUMBER(4) not null ,  
+journeyName     VARCHAR2(20) not null ,
+Name            VARCHAR2(25) not null , 
+price           number(3) not null ,
+dday            date not null ,
+journeyTime     VARCHAR2(20) not null ,
+ArrivalTime     VARCHAR2(20) not null ,
+EmployeeNo      NUMBER(3)not null ,
+
+constraint Ticket15 primary key (TicketNo)
+);
+
+alter table Ticket11 
+add foreign key  (passengersID) references passengers(passengersID);
+
+alter table Ticket11
+add foreign key  (EmployeeNO) references staff(employeeNO);
+
+INSERT INTO Ticket11  VALUES (1001,5430,'Jeddah-Makkah' ,'Enas',230,'25-nov-2020','7am','8am', 501);
+INSERT INTO Ticket11  VALUES (1002,5431,'Riyadh-jeddah' ,'yara',250,'25-nov-2020','10am','11am', 502);
+INSERT INTO Ticket11 VALUES (1003,5432,'Riyadh-jeddah' ,'amjad',250,'25-nov-2020','10am','11am', 503);
+INSERT INTO Ticket11 VALUES (1004,5433,'Jeddah-Riyadh' ,'haneen',275,'25-nov-2020','9am','10am', 504);
+INSERT INTO Ticket11  VALUES (1005,5434,'Jeddah-Makkah' ,'Amal',250,'25-nov-2020','7am','8am', 505);
+
+select * from Ticket11
+
+
+--------------------------------------------------------------------------------
+create table Journey17 (
+
+journeyID      number(4) not null ,
+passengersID  NUMBER(4) not null , 
+TrainNo        varchar2(10) not null , 
+journyeName    varchar2(20) not null , 
+durationTime   varchar2(10) not null ,
+Datee           date not null , 
+Price          number(3)   not null ,
+
+constraint Journey16 primary key (journeyID) );
+
+alter table Journey17
+add foreign key (passengersID) references passengers(passengersID);
+
+alter table Journey17
+add foreign key (TrainNo ) references Train(TrainNo);
+
+insert into Journey17 values (6008,5430,'T15','Jeddah-Makkah','1 hour','25-nov-2020',230);
+insert into Journey17 values (6009,5431,'T16','Riyadh-jeddah','1 hour','25-nov-2020',250);
+insert into Journey17 values (6010,5432,'T17','Riyadh-jeddah','1 hour','25-nov-2020',250);
+insert into Journey17 values (6011,5433,'T18','Jeddah-Riyadh','1 hour','25-nov-2020',275);
+insert into Journey17 values (6012,5434,'T19','Jeddah-Makkah','1 hour','25-nov-2020',250); 
+
+select * from Journey17 
+
+-----------------------------queries---------------------------------------------
+
+select journyeName , sum (price) as total
+from Journey17 
+group by journyeName
+
+--------------------------------------------------------------------------------
+
+select name,journyeName
+from passengers
+full outer join Journey17 on passengers.passengersID= Journey17.passengersID
+order by name 
+
+--------------------------------------------------------------------------------
+
+select Name ,TicketNo
+from ticket11 
+where price in ( 
+select price 
+from ticket11 
+where price = 250)
+order by TicketNo;
+
+--------------------------------------------------------------------------------
+
+Select name, passengersID
+From Ticket11
+Where journeyName = 'Jeddah-Makkah'
+Order by passengersID;
+
+--------------------------Procedures--------------------------------------------
+
+CREATE OR REPLACE PROCEDURE P1(JID Journey17.journeyID%TYPE, 
+TNO Journey17.TrainNo%type)
+AS
+BEGIN
+UPDATE Journey17 set TrainNo = TNO
+where journeyID = JID;
+END P1;/
+
+EXECUTE P1(6008,'T17');
+
+SELECT*FROM Journey17;
+
+--------------------------------------------------------------------------------
+elect * from Ticket11
+
+CREATE OR REPLACE PROCEDURE P2( ti Ticket11.TICKETNO%TYPE, ps Ticket11.passengersid%TYPE)
+AS
+BEGIN
+UPDATE  Ticket11 set passengersid  = ps 
+where TICKETNO = ti;
+end P2;/
+EXECUTE P2(1001,8000);
+
+select * from Ticket11
